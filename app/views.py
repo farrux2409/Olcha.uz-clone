@@ -3,13 +3,13 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from .models import Product, Category, Groups
 from .serializers import ProductModelSerializer, CategoryModelSerializer, GroupModelSerializer
 from rest_framework.permissions import AllowAny
-from rest_framework import generics
 
-generics.ListCreateAPIView
+# from rest_framework import generics
+variable = generics.ListCreateAPIView
 
 
 class ProductListView(APIView):
