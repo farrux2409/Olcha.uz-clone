@@ -66,6 +66,7 @@ class Product(BaseModel):
     slug = models.SlugField(null=True, blank=True)
     group = models.ForeignKey(Groups, on_delete=models.CASCADE, related_name='products')
 
+
     @property
     def discounted_price(self):
         if self.discount > 0:
@@ -89,8 +90,8 @@ class Product(BaseModel):
 
 class Image(models.Model):
     image = models.ImageField(upload_to='images/')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images', null=True, blank=True)
-    group = models.ForeignKey(Groups, on_delete=models.CASCADE, related_name='images', null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='images', null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_images', null=True, blank=True)
+    group = models.ForeignKey(Groups, on_delete=models.CASCADE, related_name='group_images', null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category_images', null=True, blank=True)
 
     is_primary = models.BooleanField(default=False)

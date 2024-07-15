@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from app.models import Product, Category, Groups
+from app.models import Product, Category, Groups, Image
 
 # Register your models here.
 
@@ -9,8 +9,7 @@ from app.models import Product, Category, Groups
 # admin.site.register(Category)
 # admin.site.register(Groups)
 admin.site.unregister(Group)
-
-
+admin.site.register(Image)
 @admin.register(Groups)
 class GroupsAdmin(admin.ModelAdmin):
     list_display = ['group_name', 'category']
