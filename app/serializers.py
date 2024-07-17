@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from app.models import Product, Category, Groups, Image
+from django.contrib.auth.models import User
+from rest_framework.fields import SerializerMethodField
+
+from app.models import Product, Category, Groups, Image, Comment
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -8,25 +11,61 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = '__all__'
+        extra_fields = ('user',)
+
+
 class ProductModelSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     group_name = serializers.CharField(source='group.group_name')
     group_id = serializers.IntegerField(source='group.id')
     group_slug = serializers.CharField(source='group.slug')
+    category_name = serializers.CharField(source='group.category.category_name', read_only=True)
+    category_slug = serializers.CharField(source='group.category.slug', read_only=True)
+    comments = serializers.SerializerMethodField()
+    all_images = serializers.SerializerMethodField()
 
+    def get_all_images(self, instance):
+        images = Image.objects.filter(product=instance).all()
+        images_list = []
+        request = self.context.get('request')
+        for image in images:
+            images_list.append(request.build_absolute_uri(image.get_absolute_url))
+
+        return images_list
+
+    # product_images = serializers.SerializerMethodField()
+
+    def get_comments(self, instance):
+        comments = Comment.objects.filter(product=instance)
+        serializer = CommentSerializer(comments, many=True)
+        return serializer.data
 
     def get_image(self, instance):
         image = Image.objects.filter(product=instance, is_primary=True).first()
+        request = self.context.get('request')
         if image:
-            serializer = ImageSerializer(image)
-            return serializer.data['image']
+            image_url = image.image.url
+            return request.build_absolute_uri(image_url)
 
         return None
 
     class Meta:
         model = Product
-        fields = ['id', 'product_name', 'price', 'group', 'description', 'image', 'rating', 'price',
-                  'discount', 'group_name', 'group_id', 'group_slug']
+        fields = '__all__'
+        extra_fields = ['group_name', 'group_slug', 'group_id', 'group', 'category_name', 'category_slug',
+                        'comments']
 
 
 class GroupModelSerializer(serializers.ModelSerializer):
@@ -35,9 +74,10 @@ class GroupModelSerializer(serializers.ModelSerializer):
 
     def get_image(self, instance):
         image = Image.objects.filter(group=instance, is_primary=True).first()
+        request = self.context.get('request')
         if image:
-            serializer = ImageSerializer(image)
-            return serializer.data['image']
+            image_url = image.image.url
+            return request.build_absolute_uri(image_url)
 
         return None
 
@@ -53,9 +93,10 @@ class CategoryModelSerializer(serializers.ModelSerializer):
 
     def get_image(self, instance):
         image = Image.objects.filter(category=instance, is_primary=True).first()
+        request = self.context.get('request')
         if image:
-            serializer = ImageSerializer(image)
-            return serializer.data['image']
+            image_url = image.get_absolute_url
+            return request.build_absolute_uri(image_url)
 
         return None
 

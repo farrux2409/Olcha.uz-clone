@@ -9,5 +9,8 @@ urlpatterns = [
     path('categories/', views.CategoryListApiView.as_view(), name='category_list'),
     path('category/<slug:slug>/', views.CategoryDetailView.as_view(), name='category_detail'),
     path('groups/', views.GroupListView.as_view(), name='group_list'),
-    path('group/<slug:slug>/',views.GroupsDetailView.as_view(),name='group_detail'),
+    path('group/<slug:slug>/', views.GroupsDetailView.as_view(), name='group_detail'),
+    path('images/', views.ImageListView.as_view(), name='image_list'),
+    path('users/', views.UserListView.as_view(), name='user_list'),
+    path('comments/', views.CommentListView.as_view(), name='comment_list'),
 ]

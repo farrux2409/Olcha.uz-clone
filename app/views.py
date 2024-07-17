@@ -1,11 +1,13 @@
 # Create your views here.
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
-from .models import Product, Category, Groups
-from .serializers import ProductModelSerializer, CategoryModelSerializer, GroupModelSerializer
+from .models import Product, Category, Groups, Image, Comment
+from .serializers import ProductModelSerializer, CategoryModelSerializer, GroupModelSerializer, ImageSerializer, \
+    CommentSerializer, UserSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 # from rest_framework import generics
@@ -19,7 +21,7 @@ class ProductListView(APIView):
         products = Product.objects.all()
 
         # first version
-        serializers = ProductModelSerializer(products, many=True)
+        serializers = ProductModelSerializer(products, many=True, context={'request': request})
         return Response(serializers.data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -74,7 +76,7 @@ class ProductDetailView(APIView):
 class CategoryListApiView(APIView):
     def get(self, request):
         categories = Category.objects.all()
-        serializers = CategoryModelSerializer(categories, many=True)
+        serializers = CategoryModelSerializer(categories, many=True, context={'request': request})
         return Response(serializers.data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -115,7 +117,7 @@ class CategoryDetailView(APIView):
 class GroupListView(APIView):
     def get(self, request):
         groups = Groups.objects.all()
-        serializers = GroupModelSerializer(groups, many=True)
+        serializers = GroupModelSerializer(groups, many=True, context={'request': request})
         return Response(serializers.data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -151,3 +153,24 @@ class GroupsDetailView(APIView):
         snippet = self.get_object(slug=slug)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ImageListView(APIView):
+    def get(self, request):
+        images = Image.objects.all()
+        serializer = ImageSerializer(images, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserListView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CommentListView(APIView):
+    def get(self, request):
+        comments = Comment.objects.all()
+        serializer = CommentSerializer(comments, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)

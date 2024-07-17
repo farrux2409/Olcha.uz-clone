@@ -1,13 +1,13 @@
 from django.contrib import admin
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group,User
 
-from app.models import Product, Category, Groups, Image
+from app.models import Product, Category, Groups, Image,Comment
 
 # Register your models here.
 
 # admin.site.register(Product)
-# admin.site.register(Category)
-# admin.site.register(Groups)
+# admin.site.register(User)
+admin.site.register(Comment)
 admin.site.unregister(Group)
 admin.site.register(Image)
 @admin.register(Groups)
