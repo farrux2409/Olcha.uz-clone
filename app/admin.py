@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.contrib.auth.models import Group,User
+from django.contrib.auth.models import Group, User
 
-from app.models import Product, Category, Groups, Image,Comment
+from app.models import Product, Category, Groups, Image, Comment, ProductAttribute, Attribute, AttributeValue
 
 # Register your models here.
 
@@ -10,6 +10,11 @@ from app.models import Product, Category, Groups, Image,Comment
 admin.site.register(Comment)
 admin.site.unregister(Group)
 admin.site.register(Image)
+admin.site.register(ProductAttribute)
+admin.site.register(Attribute)
+admin.site.register(AttributeValue)
+
+
 @admin.register(Groups)
 class GroupsAdmin(admin.ModelAdmin):
     list_display = ['group_name', 'category']
@@ -23,7 +28,8 @@ class GroupsAdmin(admin.ModelAdmin):
     list_display = ['category_name', 'slug']
     search_fields = ['category_name']
     prepopulated_fields = {'slug': ('category_name',)}
-    list_filter = ['category_name',]
+    list_filter = ['category_name', ]
+
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
