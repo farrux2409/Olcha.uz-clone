@@ -29,6 +29,27 @@ class CommentSerializer(serializers.ModelSerializer):
         exclude = ()
 
 
+class AttributeValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AttributeValue
+        fields = ('id', 'attribute_value')
+
+
+class AttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attribute
+        fields = ('id', 'attribute')
+
+
+class ProductAttributeSerializer(serializers.ModelSerializer):
+    attribute = AttributeSerializer()
+    attribute_value = AttributeValueSerializer()
+
+    class Meta:
+        model = ProductAttribute
+        exclude = ('product',)
+
+
 class ProductModelSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     group_name = serializers.CharField(source='group.group_name')
@@ -41,6 +62,7 @@ class ProductModelSerializer(serializers.ModelSerializer):
     is_liked = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     avg_rating = serializers.SerializerMethodField()
+    attributes = ProductAttributeSerializer(many=True, read_only=True)
 
     # def get_attributes(self, obj):
     #     attributes = ProductAttribute.objects.filter(product=obj)
@@ -112,26 +134,6 @@ class ProductModelSerializer(serializers.ModelSerializer):
         # extra_fields = ['group_name', 'group_slug', 'group_id', 'group', 'category_name', 'category_slug',
         #                 'all_comments', 'is_liked']
         # #
-
-
-class ProductAttributeSerializer(serializers.ModelSerializer):
-    product = ProductModelSerializer(many=False, read_only=True)
-
-    class Meta:
-        model = ProductAttribute
-        fields = ('attribute', 'attribute_value', 'product')
-
-
-class AttributeValueSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AttributeValue
-        fields = ('id', 'attribute_value')
-
-
-class AttributeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Attribute
-        fields = ('id', 'attribute')
 
 
 class GroupModelSerializer(serializers.ModelSerializer):
@@ -228,5 +230,3 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
-
-

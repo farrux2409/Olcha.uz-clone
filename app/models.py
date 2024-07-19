@@ -142,8 +142,9 @@ class AttributeValue(models.Model):
 
 
 class ProductAttribute(models.Model):
-    product = models.ForeignKey('app.Product', on_delete=models.CASCADE,related_name='attributes', null=True, blank=True)
-    attribute = models.ForeignKey('app.Attribute', on_delete=models.CASCADE)
-    attribute_value = models.ForeignKey('app.AttributeValue', on_delete=models.CASCADE)
-
-
+    product = models.ForeignKey('app.Product', on_delete=models.CASCADE, related_name='attributes', null=True,
+                                blank=True)
+    attribute = models.ForeignKey('app.Attribute', on_delete=models.CASCADE, related_name='product_attributes',
+                                  null=True, blank=True)
+    attribute_value = models.ForeignKey('app.AttributeValue', on_delete=models.CASCADE,
+                                        related_name='product_attribute_value', null=True, blank=True)
