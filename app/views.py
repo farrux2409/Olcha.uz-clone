@@ -2,12 +2,13 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics
-from .models import Product, Category, Groups, Image, Comment
+from rest_framework import status, generics, permissions
+from .models import Product, Category, Groups, Image, Comment, Attribute, ProductAttribute, AttributeValue
 from .serializers import ProductModelSerializer, CategoryModelSerializer, GroupModelSerializer, ImageSerializer, \
-    CommentSerializer, UserSerializer
+    CommentSerializer, UserSerializer, AttributeSerializer, ProductAttributeSerializer, AttributeValueSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 # from rest_framework import generics
@@ -252,3 +253,51 @@ class CommentDetailView(APIView):
         snippet = self.get_object(pk)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AttributeListView(APIView):
+    def get(self, request):
+        attributes = Attribute.objects.all()
+        serializer = AttributeSerializer(attributes, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ProductAttributeListView(APIView):
+    def get(self, request):
+        product_attributes = ProductAttribute.objects.all()
+        serializer = ProductAttributeSerializer(product_attributes, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ProductAttributeValueListView(APIView):
+    def get(self, request):
+        attribute_values = AttributeValue.objects.all()
+        serializer = AttributeValueSerializer(attribute_values, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# from django.contrib.auth.models import User
+# from .serializers import RegisterSerializer
+# from rest_framework import generics
+#
+#
+# class RegisterView(generics.CreateAPIView):
+#     # queryset = User.objects.all()
+#     # permission_classes = (AllowAny,)
+#     # serializer_class = RegisterSerializer
+#
+#     def get(self):
+#         queryset = User.objects.all()
+#         serializer = RegisterSerializer(queryset, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#
+#     def post(self, request):
+#         serializer = RegisterSerializer(data=request.data)
+#
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+

@@ -1,3 +1,5 @@
+
+
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
 
@@ -37,3 +39,6 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ['product_name']
     prepopulated_fields = {'slug': ('product_name',)}
     list_filter = ['group', 'price']
+
+
+

@@ -1,8 +1,14 @@
+from django.db.models import Avg
+from django.db.models.functions import Round
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.fields import SerializerMethodField
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from rest_framework.validators import UniqueValidator
+from django.contrib.auth.password_validation import validate_password
 
-from app.models import Product, Category, Groups, Image, Comment
+from app.models import Product, Category, Groups, Image, Comment, ProductAttribute, Attribute, AttributeValue
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -18,12 +24,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-
     class Meta:
         model = Comment
-        fields = '__all__'
-        extra_fields = ('user',)
+        exclude = ()
 
 
 class ProductModelSerializer(serializers.ModelSerializer):
@@ -33,8 +36,42 @@ class ProductModelSerializer(serializers.ModelSerializer):
     group_slug = serializers.CharField(source='group.slug')
     category_name = serializers.CharField(source='group.category.category_name', read_only=True)
     category_slug = serializers.CharField(source='group.category.slug', read_only=True)
-    comments = serializers.SerializerMethodField()
+    # product_comments = CommentSerializer(many=True, read_only=True)
     all_images = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
+    avg_rating = serializers.SerializerMethodField()
+
+    # def get_attributes(self, obj):
+    #     attributes = ProductAttribute.objects.filter(product=obj)
+    #     # if attributes:
+    #     serializer = ProductAttributeSerializer(attributes, many=True)
+    #     #     return serializer.data
+    #     return serializer.data
+
+    # 1-version
+    # def get_avg_rating(self, obj):
+    #     comments = Comment.objects.filter(product=obj)
+    #     try:
+    #         avg_rating = round(sum([comment.rating for comment in comments]) / comments.count())
+    #     except ZeroDivisionError:
+    #         avg_rating = 0
+    #     return avg_rating
+    # 2-version
+    def get_avg_rating(self, obj):
+        avg_rating = Comment.objects.filter(product=obj).aggregate(avg_rating=Round(Avg('rating')))
+        if avg_rating['avg_rating']:
+            return avg_rating.get('avg_rating')
+        return 0
+
+    def get_is_liked(self, instance):
+        user = self.context.get('request').user
+        if not user.is_authenticated:
+            return False
+        all_likes = instance.user_likes.all()
+        if user in all_likes:
+            return True
+        return False
 
     def get_all_images(self, instance):
         images = Image.objects.filter(product=instance).all()
@@ -47,10 +84,17 @@ class ProductModelSerializer(serializers.ModelSerializer):
 
     # product_images = serializers.SerializerMethodField()
 
-    def get_comments(self, instance):
-        comments = Comment.objects.filter(product=instance)
-        serializer = CommentSerializer(comments, many=True)
-        return serializer.data
+    def get_comments_count(self, instance):
+        count = Comment.objects.filter(product=instance).count()
+        return count
+        # comments_list = []
+        # if comments_count > 0:
+        #     for comment in instance.product_comments.all():
+        #         serializer= CommentSerializer(comment)
+        #         comments_list.append(serializer.data)
+        #
+        #     return comments_list
+        # return False
 
     def get_image(self, instance):
         image = Image.objects.filter(product=instance, is_primary=True).first()
@@ -63,9 +107,31 @@ class ProductModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = '__all__'
-        extra_fields = ['group_name', 'group_slug', 'group_id', 'group', 'category_name', 'category_slug',
-                        'comments']
+        exclude = ('user_likes',)
+
+        # extra_fields = ['group_name', 'group_slug', 'group_id', 'group', 'category_name', 'category_slug',
+        #                 'all_comments', 'is_liked']
+        # #
+
+
+class ProductAttributeSerializer(serializers.ModelSerializer):
+    product = ProductModelSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = ProductAttribute
+        fields = ('attribute', 'attribute_value', 'product')
+
+
+class AttributeValueSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AttributeValue
+        fields = ('id', 'attribute_value')
+
+
+class AttributeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Attribute
+        fields = ('id', 'attribute')
 
 
 class GroupModelSerializer(serializers.ModelSerializer):
@@ -104,6 +170,7 @@ class CategoryModelSerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'category_name', 'slug', 'category_image', 'groups']
 
+
 # class GroupModelSerializer(serializers.ModelSerializer):
 #     category_name = serializers.CharField(source='category.category_name')
 #     category_id = serializers.IntegerField(source='category.id')
@@ -124,3 +191,42 @@ class CategoryModelSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Groups
 #         fields = ['id', 'group_name', 'slug', 'category_name', 'category_id', 'image']
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'password2', 'email', 'first_name', 'last_name')
+        extra_kwargs = {
+            'first_name': {'required': True},
+            'last_name': {'required': True}
+        }
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+        return attrs
+
+    def create(self, validated_data):
+        user = User.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name']
+        )
+
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user
+
+

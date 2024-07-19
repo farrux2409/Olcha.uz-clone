@@ -124,14 +124,14 @@ class Comment(BaseModel):
                                 blank=True)
     message = models.TextField()
     rating = models.IntegerField(choices=RatingChoices.choices, default=RatingChoices.ZERO.value, null=True, blank=True)
-    file = models.FileField(upload_to='comments/')
+    file = models.FileField(upload_to='comments/', null=True, blank=True)
 
 
 class Attribute(models.Model):
-    attribute_name = models.CharField(max_length=100)
+    attribute = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.attribute_name
+        return self.attribute
 
 
 class AttributeValue(models.Model):
@@ -142,6 +142,8 @@ class AttributeValue(models.Model):
 
 
 class ProductAttribute(models.Model):
-    product = models.ForeignKey('app.Product', on_delete=models.CASCADE)
+    product = models.ForeignKey('app.Product', on_delete=models.CASCADE,related_name='attributes', null=True, blank=True)
     attribute = models.ForeignKey('app.Attribute', on_delete=models.CASCADE)
     attribute_value = models.ForeignKey('app.AttributeValue', on_delete=models.CASCADE)
+
+
