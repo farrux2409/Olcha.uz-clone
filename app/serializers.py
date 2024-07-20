@@ -62,14 +62,20 @@ class ProductModelSerializer(serializers.ModelSerializer):
     is_liked = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     avg_rating = serializers.SerializerMethodField()
-    attributes = ProductAttributeSerializer(many=True, read_only=True)
+    attributes = SerializerMethodField()
 
-    # def get_attributes(self, obj):
-    #     attributes = ProductAttribute.objects.filter(product=obj)
-    #     # if attributes:
-    #     serializer = ProductAttributeSerializer(attributes, many=True)
-    #     #     return serializer.data
-    #     return serializer.data
+    def get_attributes(self, obj):
+
+        characters = ProductAttribute.objects.filter(product=obj).values_list(
+            'attribute__attribute',
+            'attribute_value__attribute_value',
+        )
+        character_data = [
+            {'name': attribute, 'value': attribute_value, }
+            for
+            attribute, attribute_value, in
+            characters]
+        return character_data
 
     # 1-version
     # def get_avg_rating(self, obj):
