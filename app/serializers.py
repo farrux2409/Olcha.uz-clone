@@ -64,18 +64,20 @@ class ProductModelSerializer(serializers.ModelSerializer):
     avg_rating = serializers.SerializerMethodField()
     attributes = SerializerMethodField()
 
-    def get_attributes(self, obj):
+    def get_attributes(self, instance):
+        attributes = ProductAttribute.objects.filter(product=instance).values_list('key_id', 'key__attribute_name',
+                                                                                   'value_id',
+                                                                                   'value__attribute_value')
 
-        characters = ProductAttribute.objects.filter(product=obj).values_list(
-            'attribute__attribute',
-            'attribute_value__attribute_value',
-        )
-        character_data = [
-            {'name': attribute, 'value': attribute_value, }
-            for
-            attribute, attribute_value, in
-            characters]
-        return character_data
+        characters = [
+            {
+                'attribute_id': key_id,
+                'attribute_name': key_name,
+                'attribute_value_id': value_id,
+                'attribute_value': value_name
+            }
+            for key_id, key_name, value_id, value_name in attributes]
+        return characters
 
     # 1-version
     # def get_avg_rating(self, obj):
@@ -164,6 +166,7 @@ class CategoryModelSerializer(serializers.ModelSerializer):
     # images = ImageSerializer(many=True, read_only=True,source='category_images')
     category_image = serializers.SerializerMethodField(method_name='get_image')
     groups = GroupModelSerializer(many=True, read_only=True)
+    products = ProductModelSerializer(many=True, read_only=True)
 
     def get_image(self, instance):
         image = Image.objects.filter(category=instance, is_primary=True).first()
@@ -176,7 +179,7 @@ class CategoryModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'category_name', 'slug', 'category_image', 'groups']
+        exclude = ()
 
 
 # class GroupModelSerializer(serializers.ModelSerializer):

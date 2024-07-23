@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.text import slugify
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser,User
+
+from app.managers import CustomUserManager
 
 
 # Create your models here.
@@ -46,7 +48,7 @@ class Groups(BaseModel):
         return self.group_name
 
     class Meta:
-        db_table = 'Groups'
+        db_table = 'Group'
 
 
 class Product(BaseModel):
@@ -128,10 +130,10 @@ class Comment(BaseModel):
 
 
 class Attribute(models.Model):
-    attribute = models.CharField(max_length=100)
+    attribute_name = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.attribute
+        return self.attribute_name
 
 
 class AttributeValue(models.Model):
@@ -144,7 +146,7 @@ class AttributeValue(models.Model):
 class ProductAttribute(models.Model):
     product = models.ForeignKey('app.Product', on_delete=models.CASCADE, related_name='attributes', null=True,
                                 blank=True)
-    attribute = models.ForeignKey('app.Attribute', on_delete=models.CASCADE, related_name='product_attributes',
-                                  null=True, blank=True)
-    attribute_value = models.ForeignKey('app.AttributeValue', on_delete=models.CASCADE,
-                                        related_name='product_attribute_value', null=True, blank=True)
+    key = models.ForeignKey('app.Attribute', on_delete=models.CASCADE, related_name='product_attributes',
+                            null=True, blank=True)
+    value = models.ForeignKey('app.AttributeValue', on_delete=models.CASCADE,
+                              related_name='product_attribute_value', null=True, blank=True)

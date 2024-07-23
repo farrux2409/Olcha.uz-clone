@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'rest_framework',
+    'accounts',
+    'knox',
+
 ]
 
 MIDDLEWARE = [
@@ -67,13 +70,18 @@ TEMPLATES = [
         },
     },
 ]
-
+# AUTH_USER_MODEL = 'app.User'
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny'
-    ]
+        'rest_framework.permissions.AllowAny',
+    ],
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # 'rest_framework.authentication.TokenAuthentication'
+        'knox.auth.TokenAuthentication', ],
+
 }
 
 WSGI_APPLICATION = 'config.wsgi.application'

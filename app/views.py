@@ -5,18 +5,23 @@ from django.contrib.auth.models import User
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, generics, permissions
+from rest_framework import status, generics, permissions, viewsets
 from .models import Product, Category, Groups, Image, Comment, Attribute, ProductAttribute, AttributeValue
 from .serializers import ProductModelSerializer, CategoryModelSerializer, GroupModelSerializer, ImageSerializer, \
     CommentSerializer, UserSerializer, AttributeSerializer, ProductAttributeSerializer, AttributeValueSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
+# from app.models import User
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 # from rest_framework import generics
 variable = generics.ListCreateAPIView
 
 
 class ProductListView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         products = Product.objects.all()
@@ -299,5 +304,168 @@ class ProductAttributeValueListView(APIView):
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+# Homework start here ---->>>>>
+
+class ProductList(generics.ListAPIView):
+    queryset = Product.objects.all()
+    model = Product
+    serializer_class = ProductModelSerializer
+
+
+class ProductListGeneric(generics.ListCreateAPIView):
+    queryset = Product.objects.all()
+    model = Product
+    serializer_class = ProductModelSerializer
+
+
+class ProductDetail(generics.RetrieveAPIView):
+    model = Product
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
+    lookup_field = 'pk'
+
+
+class ProductDetailUpdate(generics.RetrieveUpdateAPIView):
+    model = Product
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
+    lookup_field = 'pk'
+
+
+class ProductDetailDelete(generics.RetrieveDestroyAPIView):
+    model = Product
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
+    lookup_field = 'pk'
+
+
+class ProductUpdate(generics.UpdateAPIView):
+    model = Product
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
+    lookup_field = 'pk'
+
+
+class ProductDelete(generics.DestroyAPIView):
+    model = Product
+    serializer_class = ProductModelSerializer
+    queryset = Product.objects.all()
+    lookup_field = 'pk'
+
+
+class ProductModelViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductModelSerializer
+
+    lookup_field = 'pk'
+
+
+#  For the Category
+class CategoryList(generics.ListAPIView):
+    queryset = Category.objects.all()
+    model = Category
+    serializer_class = CategoryModelSerializer
+
+
+class CategoryListGeneric(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    model = Category
+    serializer_class = CategoryModelSerializer
+
+
+class CategoryDetail(generics.RetrieveAPIView):
+    model = Category
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
+    lookup_field = 'pk'
+
+
+class CategoryDetailUpdate(generics.RetrieveUpdateAPIView):
+    model = Category
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
+    lookup_field = 'pk'
+
+
+class CategoryDetailDelete(generics.RetrieveDestroyAPIView):
+    model = Category
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
+    lookup_field = 'pk'
+
+
+class CategoryUpdate(generics.UpdateAPIView):
+    model = Category
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
+    lookup_field = 'pk'
+
+
+class CategoryDelete(generics.DestroyAPIView):
+    model = Category
+    serializer_class = CategoryModelSerializer
+    queryset = Category.objects.all()
+    lookup_field = 'pk'
+
+
+class CategoryModelViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategoryModelSerializer
+
+    lookup_field = 'pk'
+
+
+class GroupsList(generics.ListAPIView):
+    queryset = Groups.objects.all()
+    model = Groups
+    serializer_class = GroupModelSerializer
+
+
+class GroupsListGeneric(generics.ListCreateAPIView):
+    queryset = Groups.objects.all()
+    model = Groups
+    serializer_class = GroupModelSerializer
+
+
+class GroupsDetail(generics.RetrieveAPIView):
+    model = Groups
+    serializer_class = GroupModelSerializer
+    queryset = Groups.objects.all()
+    lookup_field = 'pk'
+
+
+class GroupsDetailUpdate(generics.RetrieveUpdateAPIView):
+    model = Groups
+    serializer_class = GroupModelSerializer
+    queryset = Groups.objects.all()
+    lookup_field = 'pk'
+
+
+class GroupsDetailDelete(generics.RetrieveDestroyAPIView):
+    model = Groups
+    serializer_class = GroupModelSerializer
+    queryset = Groups.objects.all()
+    lookup_field = 'pk'
+
+
+class GroupsUpdate(generics.UpdateAPIView):
+    model = Groups
+    serializer_class = GroupModelSerializer
+    queryset = Groups.objects.all()
+    lookup_field = 'pk'
+
+
+class GroupsDelete(generics.DestroyAPIView):
+    model = Groups
+    serializer_class = GroupModelSerializer
+    queryset = Groups.objects.all()
+    lookup_field = 'pk'
+
+
+class GroupsModelViewSet(viewsets.ModelViewSet):
+    queryset = Groups.objects.all()
+    serializer_class = GroupModelSerializer
+
+    lookup_field = 'pk'
 
 
