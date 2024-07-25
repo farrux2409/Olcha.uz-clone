@@ -21,11 +21,13 @@ from django.urls import path, include
 import app
 import accounts
 from config import settings
+from rest_framework.authtoken import views
 
 urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('app/', include('app.urls')),
                   path('api-auth/', include('rest_framework.urls')),
                   path('accounts/', include('accounts.urls')),
+                  path('api-token-auth/', views.obtain_auth_token),
 
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
