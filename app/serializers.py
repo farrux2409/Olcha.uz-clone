@@ -53,7 +53,7 @@ class ProductAttributeSerializer(serializers.ModelSerializer):
 class ProductModelSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     group_name = serializers.CharField(source='group.group_name')
-    group_id = serializers.IntegerField(source='group.id')
+    # group_id = serializers.IntegerField(source='group.id')
     group_slug = serializers.CharField(source='group.slug')
     category_name = serializers.CharField(source='group.category.category_name', read_only=True)
     category_slug = serializers.CharField(source='group.category.slug', read_only=True)
@@ -95,13 +95,13 @@ class ProductModelSerializer(serializers.ModelSerializer):
         return 0
 
     def get_is_liked(self, instance):
-        user = self.context.get('request').user
-        if not user.is_authenticated:
-            return False
-        all_likes = instance.user_likes.all()
-        if user in all_likes:
-            return True
-        return False
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            user = request.user
+            # Your logic to determine if liked
+        else:
+            user = None
+        return user is not None
 
     def get_all_images(self, instance):
         images = Image.objects.filter(product=instance).all()

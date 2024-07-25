@@ -51,7 +51,7 @@ urlpatterns = [
     path('category-detail-delete/<int:pk>', views.CategoryDetailDelete.as_view(), name='category_detail'),
     path('category-update/<int:pk>', views.CategoryUpdate.as_view(), name='category_update'),
     path('category-delete/<int:pk>', views.CategoryDelete.as_view(), name='category_delete'),
-    path('modelviewset-products/', include(router.urls)),
+    path('modelviewset-categories/', include(router.urls)),
 
     #  for Groups
     path('categories/', views.GroupsList.as_view(), name='groups_list'),
