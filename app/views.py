@@ -482,6 +482,7 @@ class CategoryList(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Category.objects.prefetch_related('groups').all()
+        return queryset
 
 
 class AuthorList(generics.ListAPIView):
