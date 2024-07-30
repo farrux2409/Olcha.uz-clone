@@ -3,6 +3,7 @@ from django.urls import path, include
 
 from app import views
 from rest_framework.routers import DefaultRouter
+from .views import *
 
 router = DefaultRouter()
 
@@ -34,7 +35,7 @@ urlpatterns = [
     # Homework urls
 
     #  for Products
-    path('products/', views.ProductList.as_view(), name='product_list'),
+    path('products/', views.ProductListGeneric.as_view(), name='product_list'),
     path('product-list/', views.ProductListGeneric.as_view(), name='product_list'),
     path('product-detail/<int:pk>', views.ProductDetail.as_view(), name='product_detail'),
     path('product-detail-update/<int:pk>', views.ProductDetailUpdate.as_view(), name='product_detail'),
@@ -54,7 +55,7 @@ urlpatterns = [
     path('modelviewset-categories/', include(router.urls)),
 
     #  for Groups
-    path('categories/', views.GroupsList.as_view(), name='groups_list'),
+    path('groups/', views.GroupsList.as_view(), name='groups_list'),
     path('group-list/', views.GroupsListGeneric.as_view(), name='groups_list'),
     path('group-detail/<int:pk>', views.GroupsDetail.as_view(), name='group_detail'),
     path('group-detail-update/<int:pk>', views.GroupsDetailUpdate.as_view(), name='group_detail'),
@@ -63,5 +64,8 @@ urlpatterns = [
     path('group-delete/<int:pk>', views.GroupsDelete.as_view(), name='group_delete'),
     path('modelviewset-products/', include(router.urls)),
 
+    #     For Book and Author
+    path('books/', BookList.as_view(), name='books'),
+    path('authors/', AuthorList.as_view(), name='author_list'),
 
 ]

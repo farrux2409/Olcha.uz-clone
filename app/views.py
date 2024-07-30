@@ -6,7 +6,9 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions, viewsets
-from .models import Product, Category, Groups, Image, Comment, Attribute, ProductAttribute, AttributeValue
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from .serializers import *
+from .models import Product, Category, Groups, Image, Comment, Attribute, ProductAttribute, AttributeValue, Book
 from .serializers import ProductModelSerializer, CategoryModelSerializer, GroupModelSerializer, ImageSerializer, \
     CommentSerializer, UserSerializer, AttributeSerializer, ProductAttributeSerializer, AttributeValueSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -307,6 +309,8 @@ class ProductAttributeValueListView(APIView):
 # Homework start here ---->>>>>
 
 class ProductList(generics.ListAPIView):
+    # permission_classes = [permissions.IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
     queryset = Product.objects.all()
     model = Product
     serializer_class = ProductModelSerializer
@@ -361,11 +365,6 @@ class ProductModelViewSet(viewsets.ModelViewSet):
 
 
 #  For the Category
-class CategoryList(generics.ListAPIView):
-    queryset = Category.objects.all()
-    model = Category
-    serializer_class = CategoryModelSerializer
-
 
 class CategoryListGeneric(generics.ListCreateAPIView):
     queryset = Category.objects.all()
@@ -416,6 +415,8 @@ class CategoryModelViewSet(viewsets.ModelViewSet):
 
 
 class GroupsList(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     queryset = Groups.objects.all()
     model = Groups
     serializer_class = GroupModelSerializer
@@ -463,9 +464,41 @@ class GroupsDelete(generics.DestroyAPIView):
 
 
 class GroupsModelViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     queryset = Groups.objects.all()
     serializer_class = GroupModelSerializer
 
     lookup_field = 'pk'
 
 
+# Homework starts here ------------------------------->>>>>>>>>>>>>>>
+class CategoryList(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    # queryset = Category.objects.all()
+    model = Category
+    serializer_class = CategoryModelSerializer
+
+    def get_queryset(self):
+        queryset = Category.objects.prefetch_related('groups').all()
+
+
+class AuthorList(generics.ListAPIView):
+    # queryset = Author.objects.all()
+    model = Author
+    serializer_class = AuthorModelSerializer
+
+    def get_queryset(self):
+        queryset = Author.objects.prefetch_related('books').all()
+        return queryset
+
+
+class BookList(generics.ListAPIView):
+    # queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    model = Book
+
+    def get_queryset(self):
+        queryset = Book.objects.select_related('author').all()
+        return queryset

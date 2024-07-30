@@ -1,9 +1,8 @@
-
-
 from django.contrib import admin
 from django.contrib.auth.models import Group, User
 
 from app.models import Product, Category, Groups, Image, Comment, ProductAttribute, Attribute, AttributeValue
+from .models import *
 
 # Register your models here.
 
@@ -41,4 +40,5 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ['group', 'price']
 
 
-
+admin.site.register(Book)
+admin.site.register(Author)

@@ -16,7 +16,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from accounts.serializers import RegisterSerializer, UserSerializer, UserModelSerializer
 from rest_framework.authtoken.models import Token
 
@@ -67,6 +67,9 @@ class RegisterUserAPI(generics.GenericAPIView):
 #     authentication_classes = (TokenAuthentication,)
 #     permission_classes = (IsAuthenticated,)
 class UserLoginAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
     def post(self, request, *args, **kargs):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
@@ -114,6 +117,8 @@ class UserLogoutAPIView(APIView):
 
 
 class UserJWTLogin(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def post(self, request):
         try:
@@ -143,6 +148,8 @@ class UserJWTLogin(APIView):
 
 
 class JWTRegisterAPIView(APIView):
+    authentication_classes = [JWTAuthentication]
+
     def post(self, request):
         try:
             data = request.data

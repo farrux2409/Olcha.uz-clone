@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
-from django.contrib.auth.models import AbstractUser,User
+from django.contrib.auth.models import AbstractUser, User
 
 from app.managers import CustomUserManager
 
@@ -17,7 +17,7 @@ class BaseModel(models.Model):
 
 
 class Category(BaseModel):
-    category_name = models.CharField(max_length=100, unique=True)
+    category_name = models.CharField(max_length=100)
     slug = models.SlugField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -150,3 +150,22 @@ class ProductAttribute(models.Model):
                             null=True, blank=True)
     value = models.ForeignKey('app.AttributeValue', on_delete=models.CASCADE,
                               related_name='product_attribute_value', null=True, blank=True)
+
+
+class Author(BaseModel):
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        super(Author, self).save(*args, **kwargs)
+
+
+class Book(BaseModel):
+    title = models.CharField(max_length=100)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books', null=True, blank=True)
+
+    def __str__(self):
+        return self.title

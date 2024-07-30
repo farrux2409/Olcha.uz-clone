@@ -8,7 +8,8 @@ from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
-from app.models import Product, Category, Groups, Image, Comment, ProductAttribute, Attribute, AttributeValue
+from app.models import Product, Category, Groups, Image, Comment, ProductAttribute, Attribute, AttributeValue, Book, \
+    Author
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -169,7 +170,7 @@ class CategoryModelSerializer(serializers.ModelSerializer):
     products = ProductModelSerializer(many=True, read_only=True)
 
     def get_image(self, instance):
-        image = Image.objects.filter(category=instance, is_primary=True).first()
+        image = instance.category_images.filter(is_primary=True).first()
         request = self.context.get('request')
         if image:
             image_url = image.get_absolute_url
@@ -239,3 +240,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+
+class BookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Book
+        exclude = ()
+
+
+class AuthorModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        exclude = ()
