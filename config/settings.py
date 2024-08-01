@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'debug_toolbar',
+    'django_redis',
+    'django_filters',
 
 ]
 
@@ -80,22 +82,24 @@ TEMPLATES = [
 ]
 # AUTH_USER_MODEL = 'app.User'
 REST_FRAMEWORK = {
-
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10_000,
+    'PAGE_SIZE': 100,
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
+
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.TokenAuthentication',
+
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         # 'knox.auth.TokenAuthentication',
-    ]
+    ],
 
 }
 from datetime import timedelta
@@ -217,14 +221,57 @@ MEDIA_ROOT = os.path.join(BASE_DIR / 'media')
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'cmail01.mailhost24.de.'
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'farruxyoldoshov2409@gmail.com'
 EMAIL_HOST_PASSWORD = 'vcex lqar sslh rivz'
 EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 INTERNAL_IPS = [
     # ...
     "127.0.0.1",
     # ...
 ]
+
+EMAIL_USE_TLS = True
+
+# Homework Starts here --->>>
+
+# Memory caching
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#         'LOCATION': 'unique-snowflake',
+#     }
+# }
+
+# File caching
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+#         'LOCATION': 'D:/django Api Projects/First_api_project/caches',
+#     }
+# }
+
+# Database caching
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+#         'LOCATION': 'my_cache_table',
+#     }
+# }
+
+
+# Redis
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }, }
+}
+CELERY_BROKER_URL = 'redis://localhost:6379/0'

@@ -40,5 +40,3 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ['group', 'price']
 
 
-admin.site.register(Book)
-admin.site.register(Author)

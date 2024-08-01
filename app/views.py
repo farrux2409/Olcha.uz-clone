@@ -2,13 +2,16 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from django.utils.decorators import method_decorator
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions, viewsets
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import *
-from .models import Product, Category, Groups, Image, Comment, Attribute, ProductAttribute, AttributeValue, Book
+from .models import Product, Category, Groups, Image, Comment, Attribute, ProductAttribute, AttributeValue
 from .serializers import ProductModelSerializer, CategoryModelSerializer, GroupModelSerializer, ImageSerializer, \
     CommentSerializer, UserSerializer, AttributeSerializer, ProductAttributeSerializer, AttributeValueSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -20,6 +23,7 @@ from rest_framework.views import APIView
 
 # from rest_framework import generics
 variable = generics.ListCreateAPIView
+from django.views.decorators.cache import cache_page
 
 
 class ProductListView(APIView):
@@ -308,13 +312,6 @@ class ProductAttributeValueListView(APIView):
 
 # Homework start here ---->>>>>
 
-class ProductList(generics.ListAPIView):
-    # permission_classes = [permissions.IsAuthenticated]
-    # authentication_classes = [JWTAuthentication]
-    queryset = Product.objects.all()
-    model = Product
-    serializer_class = ProductModelSerializer
-
 
 class ProductListGeneric(generics.ListCreateAPIView):
     queryset = Product.objects.all()
@@ -474,32 +471,68 @@ class GroupsModelViewSet(viewsets.ModelViewSet):
 
 # Homework starts here ------------------------------->>>>>>>>>>>>>>>
 class CategoryList(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    permission_classes = [permissions.AllowAny]
+
+    # authentication_classes = [JWTAuthentication]
     # queryset = Category.objects.all()
     model = Category
     serializer_class = CategoryModelSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_fields = ['category_name', 'price']
+    search_fields = ['category_name', 'price']
+    ordering_fields = ['category_name', 'price']
 
     def get_queryset(self):
-        queryset = Category.objects.prefetch_related('groups').all()
+        queryset = Category.objects.prefetch_related('groups').all()[:100]
         return queryset
 
+    @method_decorator(cache_page(60))
+    def get(self, *args, **kwargs):
+        return super().get(*args, **kwargs)
 
-class AuthorList(generics.ListAPIView):
-    # queryset = Author.objects.all()
-    model = Author
-    serializer_class = AuthorModelSerializer
+
+from rest_framework import filters
+
+
+class ProductList(generics.ListAPIView):
+    permission_classes = [permissions.AllowAny]
+    # authentication_classes = [JWTAuthentication]
+    # queryset = Product.objects.all()
+    model = Product
+    serializer_class = ProductModelSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filter_fields = ['product_name', 'price']
+    search_fields = ['product_name', 'price']
+    ordering_fields = ['product_name', 'price']
 
     def get_queryset(self):
-        queryset = Author.objects.prefetch_related('books').all()
+        queryset = Product.objects.select_related('group', 'group__category').prefetch_related('product_comments',
+                                                                                               'user_likes',
+                                                                                               'user_likes__comments',
+                                                                                               'product_images',
+                                                                                               'group__group_images', )
+
         return queryset
 
+    @method_decorator(cache_page(60))
+    def get(self, *args, **kwargs):
+        return super().get(*args, **kwargs)
 
-class BookList(generics.ListAPIView):
-    # queryset = Book.objects.all()
-    serializer_class = BookSerializer
-    model = Book
-
-    def get_queryset(self):
-        queryset = Book.objects.select_related('author').all()
-        return queryset
+# class AuthorList(generics.ListAPIView):
+#     # queryset = Author.objects.all()
+#     model = Author
+#     serializer_class = AuthorModelSerializer
+#
+#     def get_queryset(self):
+#         queryset = Author.objects.prefetch_related('books').all()
+#         return queryset
+#
+#
+# class BookList(generics.ListAPIView):
+#     # queryset = Book.objects.all()
+#     serializer_class = BookSerializer
+#     model = Book
+#
+#     def get_queryset(self):
+#         queryset = Book.objects.select_related('author').all()
+#         return queryset

@@ -35,7 +35,7 @@ urlpatterns = [
     # Homework urls
 
     #  for Products
-    path('products/', views.ProductListGeneric.as_view(), name='product_list'),
+    path('products/', views.ProductList.as_view(), name='product_list'),
     path('product-list/', views.ProductListGeneric.as_view(), name='product_list'),
     path('product-detail/<int:pk>', views.ProductDetail.as_view(), name='product_detail'),
     path('product-detail-update/<int:pk>', views.ProductDetailUpdate.as_view(), name='product_detail'),
@@ -65,7 +65,7 @@ urlpatterns = [
     path('modelviewset-products/', include(router.urls)),
 
     #     For Book and Author
-    path('books/', BookList.as_view(), name='books'),
-    path('authors/', AuthorList.as_view(), name='author_list'),
+    # path('books/', BookList.as_view(), name='books'),
+    # path('authors/', AuthorList.as_view(), name='author_list'),
 
 ]

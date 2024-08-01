@@ -8,8 +8,7 @@ from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
-from app.models import Product, Category, Groups, Image, Comment, ProductAttribute, Attribute, AttributeValue, Book, \
-    Author
+from app.models import Product, Category, Groups, Image, Comment, ProductAttribute, Attribute, AttributeValue
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -66,9 +65,9 @@ class ProductModelSerializer(serializers.ModelSerializer):
     attributes = SerializerMethodField()
 
     def get_attributes(self, instance):
-        attributes = ProductAttribute.objects.filter(product=instance).values_list('key_id', 'key__attribute_name',
-                                                                                   'value_id',
-                                                                                   'value__attribute_value')
+        attributes = instance.attributes.values_list('key_id', 'key__attribute_name',
+                                                     'value_id',
+                                                     'value__attribute_value')
 
         characters = [
             {
@@ -90,7 +89,7 @@ class ProductModelSerializer(serializers.ModelSerializer):
     #     return avg_rating
     # 2-version
     def get_avg_rating(self, obj):
-        avg_rating = Comment.objects.filter(product=obj).aggregate(avg_rating=Round(Avg('rating')))
+        avg_rating = obj.product_comments.aggregate(avg_rating=Round(Avg('rating')))
         if avg_rating['avg_rating']:
             return avg_rating.get('avg_rating')
         return 0
@@ -105,7 +104,7 @@ class ProductModelSerializer(serializers.ModelSerializer):
         return user is not None
 
     def get_all_images(self, instance):
-        images = Image.objects.filter(product=instance).all()
+        images = instance.product_images.filter(product=instance).all()
         images_list = []
         request = self.context.get('request')
         for image in images:
@@ -116,7 +115,7 @@ class ProductModelSerializer(serializers.ModelSerializer):
     # product_images = serializers.SerializerMethodField()
 
     def get_comments_count(self, instance):
-        count = Comment.objects.filter(product=instance).count()
+        count = instance.product_comments.count()
         return count
         # comments_list = []
         # if comments_count > 0:
@@ -128,7 +127,7 @@ class ProductModelSerializer(serializers.ModelSerializer):
         # return False
 
     def get_image(self, instance):
-        image = Image.objects.filter(product=instance, is_primary=True).first()
+        image = instance.product_images.filter(product=instance).first()
         request = self.context.get('request')
         if image:
             image_url = image.image.url
@@ -150,7 +149,7 @@ class GroupModelSerializer(serializers.ModelSerializer):
     products = ProductModelSerializer(many=True, read_only=True)
 
     def get_image(self, instance):
-        image = Image.objects.filter(group=instance, is_primary=True).first()
+        image = instance.group_images.filter(is_primary=True).first()
         request = self.context.get('request')
         if image:
             image_url = image.image.url
@@ -240,15 +239,3 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
-
-
-class BookSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Book
-        exclude = ()
-
-
-class AuthorModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Author
-        exclude = ()

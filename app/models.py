@@ -152,20 +152,3 @@ class ProductAttribute(models.Model):
                               related_name='product_attribute_value', null=True, blank=True)
 
 
-class Author(BaseModel):
-    name = models.CharField(max_length=100)
-    slug = models.SlugField(null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-
-        super(Author, self).save(*args, **kwargs)
-
-
-class Book(BaseModel):
-    title = models.CharField(max_length=100)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='books', null=True, blank=True)
-
-    def __str__(self):
-        return self.title
